@@ -12,7 +12,7 @@ A versatile Morse code transmitter using an Arduino. This project converts text 
 
 ## How to Use
 
-### Option 1 (With Executable – Not recommended as it is quite buggy currently):
+### Option 1 (With Executable – Not recommended as it is quite buggy currently and TRIGGERS FALSE POSITIVES DUE TO NO CERTIFICATE):
 1. Download the latest executable from the [releases page](#).
 2. Run `morsetransmission.exe`. This will automatically start the application.
 3. Select your COM port (usually something like `COM3`, `COM4` on Windows).
