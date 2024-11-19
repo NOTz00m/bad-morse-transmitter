@@ -80,4 +80,4 @@ This command will create a standalone executable file in the `dist` folder.
 
 - If you encounter issues with **COM port selection**, ensure that your Arduino is properly connected to your computer and recognized by the operating system.
 - Make sure you are not running multiple applications that may block the serial port (like the Arduino IDE or Serial Monitor).
-
+- THIS WAS TESTED ON AN ARDUINO UNO, I AM NOT RESPONSIBLE IF THE CODE DOES NOT WORK ON YOUR ARDUINO
