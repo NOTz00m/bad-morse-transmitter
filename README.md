@@ -39,6 +39,7 @@ A versatile Morse code transmitter using an Arduino. This project converts text 
 - **SET SYMBOL <value>**: Set the pause between symbols.
 - **SET LETTER <value>**: Set the pause between letters.
 - **SET WORD <value>**: Set the pause between words.
+- **TIMINGS**: View current timings for morse transmission.
 - **RESET**: Reset all configurations to defaults.
 - **LAST**: Print the last Morse code transmission.
 
