@@ -12,15 +12,7 @@ A versatile Morse code transmitter using an Arduino. This project converts text 
 
 ## How to Use
 
-### Option 1 (With Executable – Not recommended as it is quite buggy currently and TRIGGERS FALSE POSITIVES DUE TO NO CERTIFICATE):
-1. Download the latest executable from the [releases page](#) + clone or download the repository.
-2. Upload the Arduino sketch to your Arduino board using the Arduino IDE.
-3. Run `morsetransmission.exe`. This will automatically start the application.
-4. Select your COM port (usually something like `COM3`, `COM4` on Windows).
-5. Enter your desired text and hit "Transmit" to send Morse code.
-6. To configure timings or reset, click the respective buttons in the interface.
-
-### Option 2 (Using Source Code):
+### Option 1 (Using Source Code):
 1. Clone or download the repository.
 2. Connect the components as described below:
    - **LED** to pin 13 (default on most Arduino boards).
@@ -31,6 +23,14 @@ A versatile Morse code transmitter using an Arduino. This project converts text 
    - `TIMINGS`: View current timings.
    - `RESET`: Reset all configurations to defaults.
    - `LAST`: View the last transmitted Morse code.
+
+### Option 2 (With Executable – Not recommended as it is quite buggy currently and TRIGGERS FALSE POSITIVES DUE TO NO CERTIFICATE):
+1. Download the latest executable from the [releases page](#) + clone or download the repository.
+2. Upload the Arduino sketch to your Arduino board using the Arduino IDE.
+3. Run `morsetransmission.exe`. This will automatically start the application.
+4. Select your COM port (usually something like `COM3`, `COM4` on Windows).
+5. Enter your desired text and hit "Transmit" to send Morse code.
+6. To configure timings or reset, click the respective buttons in the interface.
 
 ## Serial Commands
 
@@ -43,7 +43,7 @@ A versatile Morse code transmitter using an Arduino. This project converts text 
 - `RESET`: Reset all configurations to defaults.
 - `LAST`: Print the last Morse code transmission.
 
-## Setup Instructions for Option 1 (with Executable):
+## Setup Instructions for Option 2 (with Executable):
 
 ### Prerequisites:
 Before running the executable or compiling the Python code, make sure you have the following dependencies installed:
