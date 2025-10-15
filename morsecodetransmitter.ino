@@ -1,184 +1,275 @@
+/*
+ * Morse Code Transmitter
+ * 
+ * A versatile Morse code transmission system with LED and audio output.
+ * Supports configurable timing parameters and serial control interface.
+ * 
+ * Hardware Requirements:
+ * - LED on pin 13
+ * - Piezo buzzer on pin 12
+ * 
+ * Commands:
+ * - Type text to transmit as Morse code
+ * - RESET: Restore default timing settings
+ * - STOP: Halt current transmission
+ * - TIMINGS: Display current timing values
+ * - LAST: Show the last transmitted Morse sequence
+ * - SET [PARAMETER] [VALUE]: Configure timing (DOT, DASH, SYMBOL, LETTER, WORD)
+ */
+
 #include <Arduino.h>
 #include "morse_mapping.h"
 
-#define LED_PIN 13
-#define BUZZER_PIN 12 // Pin for the piezo buzzer
+// Hardware pin definitions
+const uint8_t LED_PIN = 13;
+const uint8_t BUZZER_PIN = 12;
 
-// Morse code timings (in ms)
-int DOT_DURATION = 200;
-int DASH_DURATION = DOT_DURATION * 3;
-int SYMBOL_PAUSE = DOT_DURATION;      // Pause between dots and dashes
-int LETTER_PAUSE = DOT_DURATION * 3;
-int WORD_PAUSE = DOT_DURATION * 7;
+// Morse timing parameters (in milliseconds)
+struct MorseTiming {
+  int dot;
+  int dash;
+  int symbolPause;
+  int letterPause;
+  int wordPause;
+};
 
-// Default values for reset
-const int DEFAULT_DOT_DURATION = 200;
-const int DEFAULT_DASH_DURATION = DEFAULT_DOT_DURATION * 3;
-const int DEFAULT_SYMBOL_PAUSE = DEFAULT_DOT_DURATION;
-const int DEFAULT_LETTER_PAUSE = DEFAULT_DOT_DURATION * 3;
-const int DEFAULT_WORD_PAUSE = DEFAULT_DOT_DURATION * 7;
+MorseTiming timing = {200, 600, 200, 600, 1400};
+const MorseTiming DEFAULT_TIMING = {200, 600, 200, 600, 1400};
 
-// Flag to control the stop functionality
-volatile bool stopTransmission = false;
+// Transmission control
+volatile bool stopRequested = false;
+String lastTransmission = "";
 
-// Store the last Morse transmission
-String lastMorseTransmission = "";
+// Buzzer frequency for tone generation
+const uint16_t BUZZER_FREQUENCY = 1000;
 
-// Function prototypes
-void transmitMorse(String text);
-String getMorseCode(char c);
-void blinkLED(int duration);
-void playTone(int duration);
-void handleSerialCommand(String command);
-void printTimings();
-void resetToDefault();
-bool checkStopFlag();
+// Function declarations
+void transmitMorse(const String& text);
+String getMorseCode(char character);
+void signalDot();
+void signalDash();
+void outputSignal(int duration);
+void handleCommand(const String& command);
+void displayTimings();
+void resetTimings();
+bool shouldStop();
+void updateRelatedTimings();
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
+  
   Serial.begin(9600);
-  Serial.println("Enter text to transmit as Morse code:");
+  while (!Serial) {
+    ; // Wait for serial port to connect
+  }
+  
+  Serial.println(F("================================="));
+  Serial.println(F("   Morse Code Transmitter v2.0   "));
+  Serial.println(F("================================="));
+  Serial.println(F("Ready to transmit."));
+  Serial.println(F("Type text or command (RESET, STOP, TIMINGS, LAST)"));
+  Serial.println();
 }
 
 void loop() {
   if (Serial.available() > 0) {
     String input = Serial.readStringUntil('\n');
-    input.trim(); // Remove leading spaces
-
-    if (input == "RESET") {
-      resetToDefault();
-    } else if (input == "STOP") {
-      stopTransmission = true;
-      Serial.println("Morse code transmission stopped.");
-    } else if (input == "TIMINGS") {
-      printTimings();
-    } else if (input == "LAST") {
-      Serial.print("Last Morse Transmission: ");
-      Serial.println(lastMorseTransmission);
-    } else if (input.startsWith("SET ")) {
-      handleSerialCommand(input); // Handle config commands
-    } else {
+    input.trim();
+    
+    if (input.length() == 0) return;
+    
+    // Handle special commands
+    if (input.equalsIgnoreCase("RESET")) {
+      resetTimings();
+    } 
+    else if (input.equalsIgnoreCase("STOP")) {
+      stopRequested = true;
+      Serial.println(F("Stop signal sent."));
+    } 
+    else if (input.equalsIgnoreCase("TIMINGS")) {
+      displayTimings();
+    } 
+    else if (input.equalsIgnoreCase("LAST")) {
+      Serial.print(F("Last transmission: "));
+      Serial.println(lastTransmission.length() > 0 ? lastTransmission : "None");
+    } 
+    else if (input.startsWith("SET ")) {
+      handleCommand(input);
+    } 
+    else {
+      // Transmit as Morse code
       input.toUpperCase();
-      stopTransmission = false; // Reset stop flag before starting new transmission
-      lastMorseTransmission = ""; // Clear previous transmission
+      stopRequested = false;
+      lastTransmission = "";
+      Serial.print(F("Transmitting: "));
+      Serial.println(input);
       transmitMorse(input);
-    }
-  }
-}
-
-void transmitMorse(String text) {
-  for (int i = 0; i < text.length(); i++) {
-    if (checkStopFlag()) return;
-
-    char c = text.charAt(i);
-
-    if (c == ' ') {
-      if (checkStopFlag()) return;
-      lastMorseTransmission += " / "; // Represent space between words
-      delay(WORD_PAUSE);
-    } else {
-      String morse = getMorseCode(c);
-      if (morse != "") {
-        lastMorseTransmission += morse + " ";
-        for (int j = 0; j < morse.length(); j++) {
-          if (checkStopFlag()) return;
-          if (morse[j] == '.') {
-            blinkLED(DOT_DURATION);
-            playTone(DOT_DURATION);
-          } else if (morse[j] == '-') {
-            blinkLED(DASH_DURATION);
-            playTone(DASH_DURATION);
-          }
-          if (j < morse.length() - 1 && !checkStopFlag()) {
-            delay(SYMBOL_PAUSE);
-          }
-        }
-        if (!checkStopFlag()) delay(LETTER_PAUSE);
-      } else {
-        Serial.print("Unsupported character: ");
-        Serial.println(c);
+      if (!stopRequested) {
+        Serial.println(F("Transmission complete."));
       }
     }
   }
 }
 
-void blinkLED(int duration) {
-  unsigned long startTime = millis();
-  while (millis() - startTime < duration) {
-    if (checkStopFlag()) return;
-    digitalWrite(LED_PIN, HIGH);
+void transmitMorse(const String& text) {
+  for (size_t i = 0; i < text.length(); i++) {
+    if (shouldStop()) return;
+    
+    char c = text.charAt(i);
+    
+    if (c == ' ') {
+      lastTransmission += "/ ";
+      delay(timing.wordPause);
+    } 
+    else {
+      String morse = getMorseCode(c);
+      
+      if (morse.length() > 0) {
+        lastTransmission += morse + " ";
+        
+        for (size_t j = 0; j < morse.length(); j++) {
+          if (shouldStop()) return;
+          
+          if (morse[j] == '.') {
+            signalDot();
+          } 
+          else if (morse[j] == '-') {
+            signalDash();
+          }
+          
+          // Pause between symbols within a letter
+          if (j < morse.length() - 1 && !shouldStop()) {
+            delay(timing.symbolPause);
+          }
+        }
+        
+        // Pause between letters
+        if (!shouldStop() && i < text.length() - 1 && text.charAt(i + 1) != ' ') {
+          delay(timing.letterPause);
+        }
+      } 
+      else {
+        Serial.print(F("Warning: Unsupported character '"));
+        Serial.print(c);
+        Serial.println(F("' skipped."));
+      }
+    }
   }
-  digitalWrite(LED_PIN, LOW);
 }
 
-void playTone(int duration) {
+void signalDot() {
+  outputSignal(timing.dot);
+}
+
+void signalDash() {
+  outputSignal(timing.dash);
+}
+
+void outputSignal(int duration) {
   unsigned long startTime = millis();
+  digitalWrite(LED_PIN, HIGH);
+  tone(BUZZER_PIN, BUZZER_FREQUENCY);
+  
   while (millis() - startTime < duration) {
-    if (checkStopFlag()) return;
-    tone(BUZZER_PIN, 1000); // 1000 Hz tone
+    if (shouldStop()) {
+      digitalWrite(LED_PIN, LOW);
+      noTone(BUZZER_PIN);
+      return;
+    }
   }
+  
+  digitalWrite(LED_PIN, LOW);
   noTone(BUZZER_PIN);
 }
 
-String getMorseCode(char c) {
-  int index = morseCodeChars.indexOf(c);
-  if (index != -1) {
-    return morseCodeMap[index];
+String getMorseCode(char character) {
+  int index = morseCodeChars.indexOf(character);
+  return (index != -1) ? morseCodeMap[index] : "";
+}
+
+void handleCommand(const String& command) {
+  String cmd = command.substring(4);
+  cmd.trim();
+  
+  int spaceIndex = cmd.indexOf(' ');
+  if (spaceIndex == -1) {
+    Serial.println(F("Error: Invalid SET command format."));
+    Serial.println(F("Usage: SET [DOT|DASH|SYMBOL|LETTER|WORD] [value]"));
+    return;
   }
-  return "";
-}
-
-void handleSerialCommand(String command) {
-  if (command.startsWith("SET DOT ")) {
-    DOT_DURATION = command.substring(8).toInt();
-    DASH_DURATION = DOT_DURATION * 3;
-    SYMBOL_PAUSE = DOT_DURATION;
-    LETTER_PAUSE = DOT_DURATION * 3;
-    WORD_PAUSE = DOT_DURATION * 7;
-    Serial.println("Dot duration updated.");
-  } else if (command.startsWith("SET DASH ")) {
-    DASH_DURATION = command.substring(9).toInt();
-    Serial.println("Dash duration updated.");
-  } else if (command.startsWith("SET SYMBOL ")) {
-    SYMBOL_PAUSE = command.substring(11).toInt();
-    Serial.println("Symbol pause updated.");
-  } else if (command.startsWith("SET LETTER ")) {
-    LETTER_PAUSE = command.substring(11).toInt();
-    Serial.println("Letter pause updated.");
-  } else if (command.startsWith("SET WORD ")) {
-    WORD_PAUSE = command.substring(9).toInt();
-    Serial.println("Word pause updated.");
-  } else {
-    Serial.println("Unknown command.");
+  
+  String parameter = cmd.substring(0, spaceIndex);
+  int value = cmd.substring(spaceIndex + 1).toInt();
+  
+  if (value <= 0) {
+    Serial.println(F("Error: Value must be positive."));
+    return;
   }
+  
+  parameter.toUpperCase();
+  
+  if (parameter == "DOT") {
+    timing.dot = value;
+    updateRelatedTimings();
+    Serial.print(F("Dot duration set to "));
+  } 
+  else if (parameter == "DASH") {
+    timing.dash = value;
+    Serial.print(F("Dash duration set to "));
+  } 
+  else if (parameter == "SYMBOL") {
+    timing.symbolPause = value;
+    Serial.print(F("Symbol pause set to "));
+  } 
+  else if (parameter == "LETTER") {
+    timing.letterPause = value;
+    Serial.print(F("Letter pause set to "));
+  } 
+  else if (parameter == "WORD") {
+    timing.wordPause = value;
+    Serial.print(F("Word pause set to "));
+  } 
+  else {
+    Serial.println(F("Error: Unknown parameter."));
+    Serial.println(F("Valid parameters: DOT, DASH, SYMBOL, LETTER, WORD"));
+    return;
+  }
+  
+  Serial.print(value);
+  Serial.println(F(" ms"));
 }
 
-void printTimings() {
-  Serial.print("DOT_DURATION: ");
-  Serial.println(DOT_DURATION);
-  Serial.print("DASH_DURATION: ");
-  Serial.println(DASH_DURATION);
-  Serial.print("SYMBOL_PAUSE: ");
-  Serial.println(SYMBOL_PAUSE);
-  Serial.print("LETTER_PAUSE: ");
-  Serial.println(LETTER_PAUSE);
-  Serial.print("WORD_PAUSE: ");
-  Serial.println(WORD_PAUSE);
+void updateRelatedTimings() {
+  // Maintain standard Morse timing ratios when dot duration changes
+  timing.dash = timing.dot * 3;
+  timing.symbolPause = timing.dot;
+  timing.letterPause = timing.dot * 3;
+  timing.wordPause = timing.dot * 7;
+  Serial.println(F("Related timings auto-adjusted to maintain standard ratios."));
 }
 
-void resetToDefault() {
-  DOT_DURATION = DEFAULT_DOT_DURATION;
-  DASH_DURATION = DEFAULT_DASH_DURATION;
-  SYMBOL_PAUSE = DEFAULT_SYMBOL_PAUSE;
-  LETTER_PAUSE = DEFAULT_LETTER_PAUSE;
-  WORD_PAUSE = DEFAULT_WORD_PAUSE;
-  Serial.println("All values reset to default.");
+void displayTimings() {
+  Serial.println(F("--- Current Timing Settings ---"));
+  Serial.print(F("Dot duration:    ")); Serial.print(timing.dot); Serial.println(F(" ms"));
+  Serial.print(F("Dash duration:   ")); Serial.print(timing.dash); Serial.println(F(" ms"));
+  Serial.print(F("Symbol pause:    ")); Serial.print(timing.symbolPause); Serial.println(F(" ms"));
+  Serial.print(F("Letter pause:    ")); Serial.print(timing.letterPause); Serial.println(F(" ms"));
+  Serial.print(F("Word pause:      ")); Serial.print(timing.wordPause); Serial.println(F(" ms"));
+  Serial.println(F("-------------------------------"));
 }
 
-bool checkStopFlag() {
-  if (stopTransmission) {
-    Serial.println("Transmission stopped.");
+void resetTimings() {
+  timing = DEFAULT_TIMING;
+  Serial.println(F("Timings reset to defaults."));
+  displayTimings();
+}
+
+bool shouldStop() {
+  if (stopRequested) {
+    Serial.println(F("Transmission halted by user."));
+    digitalWrite(LED_PIN, LOW);
+    noTone(BUZZER_PIN);
     return true;
   }
   return false;
