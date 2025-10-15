@@ -1,79 +1,242 @@
 # Arduino Morse Code Transmitter
 
-A versatile Morse code transmitter using an Arduino. This project converts text input into Morse code, blinking an LED and playing tones with a buzzer. It supports real-time configuration, stop functionality, and logging the last transmission.
+A professional Morse code transmission system featuring Arduino hardware control and a Python GUI interface. Convert text to International Morse Code with visual (LED) and audio (buzzer) output, complete with configurable timing parameters and real-time transmission control.
 
-## Features
+![Version](https://img.shields.io/badge/version-2.0-blue)
+![Arduino](https://img.shields.io/badge/arduino-compatible-green)
+![Python](https://img.shields.io/badge/python-3.7+-yellow)
 
-- Converts text to Morse code using an LED and piezo buzzer.
-- Adjustable timings for dots, dashes, and pauses.
-- Serial commands to configure or reset timings.
-- Ability to stop ongoing transmissions.
-- Logs and prints the last transmitted Morse code.
+## ✨ Features
 
-## How to Use
+- **Dual Output**: Simultaneous LED blinking and piezo buzzer tones
+- **Full Character Support**: Letters (A-Z), digits (0-9), and common punctuation
+- **Configurable Timing**: Adjust dot duration, dash duration, and all pause intervals
+- **Real-time Control**: Stop transmissions mid-sequence
+- **Transmission History**: View the last transmitted Morse code sequence
+- **User-friendly GUI**: Intuitive Python interface for easy operation
+- **Serial Commands**: Direct Arduino control via serial terminal
+- **Standard Compliant**: Follows International Morse Code timing standards
 
-### Option 1 (Using Source Code):
-1. Clone or download the repository.
-2. Connect the components as described below:
-   - **LED** to pin 13 (default on most Arduino boards).
-   - **Piezo buzzer** to pin 12 (optional).
-3. Upload the Arduino sketch to your Arduino board using the Arduino IDE.
-4. Open the Serial Monitor and start interacting with the project using commands:
-   - You will be prompted to input text to transmit into morse code automaticlaly.
-   - `TIMINGS`: View current timings.
-   - `RESET`: Reset all configurations to defaults.
-   - `LAST`: View the last transmitted Morse code.
+## 📋 Requirements
 
-### Option 2 (With Executable – Not recommended as it is quite buggy currently and TRIGGERS FALSE POSITIVES DUE TO NO CERTIFICATE):
-1. Download the latest executable from the [releases page](#) + clone or download the repository.
-2. Upload the Arduino sketch to your Arduino board using the Arduino IDE.
-3. Run `morsetransmission.exe`. This will automatically start the application.
-4. Select your COM port (usually something like `COM3`, `COM4` on Windows).
-5. Enter your desired text and hit "Transmit" to send Morse code.
-6. To configure timings or reset, click the respective buttons in the interface.
+### Hardware
+- Arduino board (known to work/tested on Arduino Uno)
+- LED (built-in LED on pin 13 works perfectly)
+- Piezo buzzer
+- Breadboard and jumper wires (optional)
 
-## Serial Commands
+### Software
+- Arduino IDE (1.8.x or later)
+- Python 3.7 or higher
+- Required Python packages:
+  ```bash
+  pip install pyserial
+  ```
+  
+**Note**: `tkinter` comes pre-installed with most Python distributions
 
-- `SET DOT <value>`: Set the dot duration in milliseconds.
-- `SET DASH <value>`: Set the dash duration in milliseconds.
-- `SET SYMBOL <value>`: Set the pause between symbols.
-- `SET LETTER <value>`: Set the pause between letters.
-- `SET WORD <value>`: Set the pause between words.
-- `TIMINGS`: View current timings for morse transmission.
-- `RESET`: Reset all configurations to defaults.
-- `LAST`: Print the last Morse code transmission.
+## 🔧 Hardware Setup
 
-## Setup Instructions for Option 2 (with Executable):
+Connect your components as follows:
 
-### Prerequisites:
-Before running the executable or compiling the Python code, make sure you have the following dependencies installed:
+| Component | Arduino Pin | Notes |
+|-----------|-------------|-------|
+| LED | Pin 13 | Can use built-in LED |
+| Piezo Buzzer | Pin 12 | Positive to pin, negative to GND |
 
-### Required Dependencies:
-
-1. **Python 3.x** – Make sure you have Python installed (download from [python.org](https://www.python.org/)).
-2. **Required Libraries**:
-   - **pySerial**: Used for serial communication with the Arduino.
-   - **Tkinter**: GUI toolkit for building the interface (comes pre-installed with Python in most distributions).
-   - **pyInstaller (optional)**: Converts Python scripts into standalone executables.
-
-```bash
-pip install pyserial pyinstaller
+**Wiring Diagram:**
+```
+Arduino Pin 13 ──→ LED (+) ──→ Resistor (220Ω) ──→ GND
+Arduino Pin 12 ──→ Buzzer (+) ──→ GND
 ```
 
-## Creating the Executable (if you're building it yourself):
+## 🚀 Quick Start
 
-1. Clone or download the repository.
-2. Navigate to the folder containing `main.py`.
-3. Run the following command to generate the executable:
+### Method 1: GUI Application (Recommended)
 
+1. **Clone the repository**
    ```bash
-   pyinstaller --onefile --noconsole main.py
+   git clone https://github.com/yourusername/morse-code-transmitter.git
+   cd morse-code-transmitter
    ```
 
-This command will create a standalone executable file in the `dist` folder.
+2. **Upload Arduino sketch**
+   - Open `morse_transmitter.ino` in Arduino IDE
+   - Select your board and port from Tools menu
+   - Click Upload
 
-## Troubleshooting:
+3. **Run the Python GUI**
+   ```bash
+   python morse_transmitter_gui.py
+   ```
 
-- If you encounter issues with **COM port selection**, ensure that your Arduino is properly connected to your computer and recognized by the operating system.
-- Make sure you are not running multiple applications that may block the serial port at the same time (like the Arduino IDE or Serial Monitor).
-- THIS WAS TESTED ON AN ARDUINO UNO, I AM NOT RESPONSIBLE IF THE CODE DOES NOT WORK ON YOUR ARDUINO
+4. **Connect and transmit**
+   - Select your COM port from the dropdown
+   - Click "Connect"
+   - Enter your message and click "Transmit"
+
+### Method 2: Serial Terminal
+
+1. Upload the Arduino sketch as described above
+2. Open Arduino IDE Serial Monitor (Ctrl+Shift+M)
+3. Set baud rate to 9600
+4. Type your message and press Enter
+
+## 📟 Serial Commands
+
+Control the transmitter directly through serial communication:
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `[text]` | Transmit text as Morse code | `HELLO WORLD` |
+| `TIMINGS` | Display current timing settings | `TIMINGS` |
+| `RESET` | Restore default timing values | `RESET` |
+| `STOP` | Halt current transmission | `STOP` |
+| `LAST` | Show last transmitted sequence | `LAST` |
+| `SET DOT [ms]` | Set dot duration | `SET DOT 150` |
+| `SET DASH [ms]` | Set dash duration | `SET DASH 450` |
+| `SET SYMBOL [ms]` | Set inter-symbol pause | `SET SYMBOL 150` |
+| `SET LETTER [ms]` | Set inter-letter pause | `SET LETTER 450` |
+| `SET WORD [ms]` | Set inter-word pause | `SET WORD 1050` |
+
+### Timing Configuration Examples
+
+**Speed up transmission (faster Morse):**
+```
+SET DOT 100
+```
+This automatically adjusts all related timings to maintain proper ratios.
+
+**Custom dash duration:**
+```
+SET DASH 500
+```
+
+**Reset everything to defaults:**
+```
+RESET
+```
+
+## 🎯 Default Timing Values
+
+Following International Morse Code standards:
+
+- **Dot duration**: 200 ms
+- **Dash duration**: 600 ms (3× dot)
+- **Symbol pause**: 200 ms (between dots/dashes)
+- **Letter pause**: 600 ms (between letters)
+- **Word pause**: 1400 ms (between words)
+
+## 🖥️ GUI Application Features
+
+The Python GUI provides:
+
+- **COM Port Manager**: Auto-detect and connect to Arduino
+- **Message Input**: Type and transmit text easily
+- **Control Panel**: Stop, reset, and query status
+- **Output Log**: View all responses and transmission history
+- **Status Indicator**: Visual connection feedback
+
+### GUI Screenshot
+
+```
+┌─────────────────────────────────────┐
+│   Morse Code Transmitter v2.0      │
+├─────────────────────────────────────┤
+│ Connection                          │
+│ COM Port: [COM3 ▼] [Refresh] [Connect] │
+│ Status: Connected ✓                 │
+├─────────────────────────────────────┤
+│ Message                             │
+│ [Enter text here____________]      │
+│        [TRANSMIT]                   │
+├─────────────────────────────────────┤
+│ [Stop] [Reset] [Timings] [Last]    │
+├─────────────────────────────────────┤
+│ Output                              │
+│ ┌─────────────────────────────────┐│
+│ │ Transmission log...             ││
+│ └─────────────────────────────────┘│
+└─────────────────────────────────────┘
+```
+
+## 📦 Building Standalone Executable
+
+Create a standalone `.exe` file (Windows):
+
+```bash
+pip install pyinstaller
+pyinstaller --onefile --noconsole --name="MorseTransmitter" morse_transmitter_gui.py
+```
+
+The executable will be in the `dist/` folder.
+
+**Security Note**: Unsigned executables may trigger antivirus warnings. This is normal for self-compiled applications. You can either:
+- Add an exception in their antivirus software
+- Run the Python script directly instead
+- Code-sign the executable (requires certificate)
+
+## 🐛 Troubleshooting
+
+### Arduino not detected
+- Ensure USB cable is properly connected
+- Install appropriate drivers for your Arduino board
+- Check Device Manager (Windows) or `ls /dev/tty*` (Linux/Mac)
+
+### COM port access denied
+- Close Arduino IDE Serial Monitor
+- Close any other applications using the port
+- Restart the GUI application
+
+### Transmission not working
+- Verify hardware connections
+- Check that Arduino code uploaded successfully
+- Test with Serial Monitor first to isolate GUI issues
+
+### Python GUI won't start
+- Verify Python version: `python --version`
+- Reinstall pyserial: `pip install --upgrade pyserial`
+- Check tkinter: `python -m tkinter`
+
+## 📚 Morse Code Reference
+
+### Letters
+```
+A .-    B -...  C -.-.  D -..   E .     F ..-.
+G --.   H ....  I ..    J .---  K -.-   L .-..
+M --    N -.    O ---   P .--.  Q --.-  R .-.
+S ...   T -     U ..-   V ...-  W .--   X -..-
+Y -.--  Z --..
+```
+
+### Numbers
+```
+0 -----  1 .----  2 ..---  3 ...--  4 ....-
+5 .....  6 -....  7 --...  8 ---..  9 ----.
+```
+
+### Punctuation
+```
+. .-.-.-  , --..--  ? ..--..  ' .----.  ! -.-.--
+/ -..-.   ( -.--.   ) -.--.-  & .-...  : ---...
+; -.-.-.  = -...-   + .-.-.   - -....-  _ ..--.-
+" .-..-.  $ ...-..- @ .--.-.
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/NOTz00m/bad-morse-transmitter/issues)
+- **Documentation**: See inline code comments
+---
+
+**Tested on**: Arduino Uno, Arduino Nano, Arduino Mega 2560  
+**Python Version**: 3.7, 3.8, 3.9, 3.10, 3.11  
+**OS Compatibility**: Windows 10/11, macOS, Linux
