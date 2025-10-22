@@ -2,9 +2,9 @@
 
 A professional Morse code transmission system featuring Arduino hardware control and a Python GUI interface. Convert text to International Morse Code with visual (LED) and audio (buzzer) output, complete with configurable timing parameters and real-time transmission control.
 <div align="center">
-  ![Version](https://img.shields.io/badge/version-2.0-blue)
-  ![Arduino](https://img.shields.io/badge/arduino-compatible-green)
-  ![Python](https://img.shields.io/badge/python-3.7+-yellow)
+  <img src="https://img.shields.io/badge/version-2.0-blue" alt="Software Version">
+  <img src="https://img.shields.io/badge/arduino-compatible-green" alt="Arduino Compatibility">
+  <img src="https://img.shields.io/badge/python-3.7+-yellow" alt="Python Version">
 </div>
 
 ## Features
