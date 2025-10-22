@@ -43,12 +43,6 @@ Connect your components as follows:
 | LED | Pin 13 | Can use built-in LED |
 | Piezo Buzzer | Pin 12 | Positive to pin, negative to GND |
 
-**Wiring Diagram:**
-```
-Arduino Pin 13 ──→ LED (+) ──→ Resistor (220Ω) ──→ GND
-Arduino Pin 12 ──→ Buzzer (+) ──→ GND
-```
-
 ## Quick Start
 
 ### Method 1: GUI Application (Recommended)
