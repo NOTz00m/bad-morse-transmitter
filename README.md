@@ -6,18 +6,16 @@ A professional Morse code transmission system featuring Arduino hardware control
 ![Arduino](https://img.shields.io/badge/arduino-compatible-green)
 ![Python](https://img.shields.io/badge/python-3.7+-yellow)
 
-## ✨ Features
+## Features
 
-- **Dual Output**: Simultaneous LED blinking and piezo buzzer tones
 - **Full Character Support**: Letters (A-Z), digits (0-9), and common punctuation
 - **Configurable Timing**: Adjust dot duration, dash duration, and all pause intervals
 - **Real-time Control**: Stop transmissions mid-sequence
 - **Transmission History**: View the last transmitted Morse code sequence
 - **User-friendly GUI**: Intuitive Python interface for easy operation
-- **Serial Commands**: Direct Arduino control via serial terminal
 - **Standard Compliant**: Follows International Morse Code timing standards
 
-## 📋 Requirements
+## Requirements
 
 ### Hardware
 - Arduino board (known to work/tested on Arduino Uno)
@@ -35,7 +33,7 @@ A professional Morse code transmission system featuring Arduino hardware control
   
 **Note**: `tkinter` comes pre-installed with most Python distributions
 
-## 🔧 Hardware Setup
+## Hardware Setup
 
 Connect your components as follows:
 
@@ -50,7 +48,7 @@ Arduino Pin 13 ──→ LED (+) ──→ Resistor (220Ω) ──→ GND
 Arduino Pin 12 ──→ Buzzer (+) ──→ GND
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Method 1: GUI Application (Recommended)
 
@@ -117,7 +115,7 @@ SET DASH 500
 RESET
 ```
 
-## 🎯 Default Timing Values
+## Default Timing Values
 
 Following International Morse Code standards:
 
@@ -127,7 +125,7 @@ Following International Morse Code standards:
 - **Letter pause**: 600 ms (between letters)
 - **Word pause**: 1400 ms (between words)
 
-## 🖥️ GUI Application Features
+## GUI Application Features
 
 The Python GUI provides:
 
@@ -137,7 +135,7 @@ The Python GUI provides:
 - **Output Log**: View all responses and transmission history
 - **Status Indicator**: Visual connection feedback
 
-## 📦 Building Standalone Executable
+## Building Executable
 
 Create a standalone `.exe` file (Windows):
 
@@ -153,7 +151,7 @@ The executable will be in the `dist/` folder.
 - Run the Python script directly instead
 - Code-sign the executable (requires certificate)
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Arduino not detected
 - Ensure USB cable is properly connected
@@ -175,7 +173,7 @@ The executable will be in the `dist/` folder.
 - Reinstall pyserial: `pip install --upgrade pyserial`
 - Check tkinter: `python -m tkinter`
 
-## 📚 Morse Code Reference
+## Morse Code Reference
 
 ### Letters
 ```
@@ -200,15 +198,11 @@ Y -.--  Z --..
 " .-..-.  $ ...-..- @ .--.-.
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
 
-## 📄 License
-
-This project is open source and available under the MIT License.
-
-## 📞 Support
+## Support
 
 - **Issues**: [GitHub Issues](https://github.com/NOTz00m/bad-morse-transmitter/issues)
 - **Documentation**: See inline code comments
